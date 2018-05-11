@@ -31,10 +31,10 @@ async function getStoriesForAccount(session, account, response) {
     var results = await feed.get();
     var arrStories = _.flatten(results);
     
-    sendResponse(arrStories, response);
+    sendResponse(arrStories, response, account._params.isPrivate);
 }
 
-function sendResponse(arrStories, response) {
+function sendResponse(arrStories, response, isPrivate) {
     // prepare array of links to stories in the best qualities
     var arrMedia = [];
     arrStories.forEach(function(item){
@@ -50,7 +50,13 @@ function sendResponse(arrStories, response) {
     // write and send response
     response.setHeader('Access-Control-Allow-Origin', '*');
     response.setHeader('Access-Control-Allow-Headers', 'origin, content-type, accept');
-    response.writeHead(200, {"Content-Type": "application/json"});
+    
+    if (!isPrivate){
+        response.writeHead(200, {"Content-Type": "application/json"});
+    } else {
+        response.writeHead(202, {"Content-Type": "application/json"});
+    }
+    
     response.write(finalJSON);
     response.end();
     
